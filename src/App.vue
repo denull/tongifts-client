@@ -1,47 +1,44 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { loc } from '@/locales.js';
+import { ref } from 'vue';
+import PageStore from './components/PageStore.vue';
+import PageGift from './components/PageGift.vue';
+import PageGifts from './components/PageGifts.vue';
+import PageLeaderboard from './components/PageLeaderboard.vue';
+import PageProfile from './components/PageProfile.vue';
+import TabButton from './components/TabButton.vue';
+
+const page = ref('store');
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
   <main>
-    <TheWelcome />
+    <PageStore v-if="page == 'store'"/>
+    <PageGifts v-else-if="page == 'gifts'"/>
+    <PageLeaderboard v-else-if="page == 'leaderboard'"/>
+    <PageProfile v-else-if="page == 'profile'"/>
   </main>
+  <footer>
+    <TabButton name="store" :active="page == 'store'" @click="page = 'store'"></TabButton>
+    <TabButton name="gifts" :active="page == 'gifts'" @click="page = 'gifts'"></TabButton>
+    <TabButton name="leaderboard" :active="page == 'leaderboard'" @click="page = 'leaderboard'"></TabButton>
+    <TabButton name="profile" :active="page == 'profile'" @click="page = 'profile'"></TabButton>
+  </footer>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
+main {
+  flex: 1;
 }
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+footer {
+  height: 100px;
+  display: flex;
+  justify-content: space-evenly;
+  background-color: var(--color-bg-tabbar);
+  padding-top: 8px;
+  border-top: 0.33px solid var(--color-separator);
 }
-
 @media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
 }
 </style>
