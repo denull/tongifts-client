@@ -9,9 +9,12 @@ defineProps({
 </script>
 
 <template>
-  <div v-html="icons[name]"></div>
+  <div class="icon" v-html="icons[name]"></div>
 </template>
 
-<style scoped>
-
+<style>
+.icon > svg {
+  width: 100%;
+  height: 100%;
+}
 </style>

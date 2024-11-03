@@ -5,16 +5,16 @@ function num(locale, n, opts) {
   if (locale == 'en') {
     if (n == 0) return opts[0];
     if (n == 1) return opts[1];
-    return cs[2];
+    return opts[2];
   } else
   if (locale == 'ru') {
     if (n == 0) return opts[0];
     n = n % 100;
     if ((n % 10 == 0) || (n % 10 > 4) || (n > 4 && n < 21) || (n % 1 != 0)) {
-      return cs[3];
+      return opts[3];
     }
-    if (n % 10 == 1) return cs[1];
-    return cs[2];
+    if (n % 10 == 1) return opts[1];
+    return opts[2];
   }
   return opts[0];
 }
@@ -37,6 +37,7 @@ const locales = {
 
     btnClose: 'Close',
     btnBuyGift: 'Buy a Gift',
+    btnSoldOut: 'Sold Out',
     btnPay: 'Pay',
     btnSendGift: 'Send Gift',
     btnSendToContact: 'Send Gift to Contact',
@@ -52,6 +53,7 @@ const locales = {
     date: 'Date',
     price: 'Price',
     availability: 'Availability',
+    search: 'Search',
     numGifts: count => num('en', count, ['no gifts received', `${count} gift received`, `${count} gifts received`]),
     numGiftsShort: count => num('en', count, ['no gifts', `${count} gift`, `${count} gifts`]),
     countOf: ({ n, total }) => `${fmtNum(n)} of ${fmtNum(total)}`,
@@ -95,6 +97,7 @@ const locales = {
 
     btnClose: 'Закрыть',
     btnBuyGift: 'Купить подарок',
+    btnSoldOut: 'Распродано',
     btnPay: 'Оплатить',
     btnSendGift: 'Отправить подарок',
     btnSendToContact: 'Отправить подарок контакту',
@@ -110,6 +113,7 @@ const locales = {
     date: 'Дата',
     price: 'Цена',
     availability: 'Количество',
+    search: 'Поиск',
     numGifts: count => num('ru', count, ['получено 0 подарков', `получен ${count} подарок`, `получено ${count} подарка`, `получено ${count} подарков`]),
     numGiftsShort: count => num('ru', count, ['0 подарков', `${count} подарок`, `${count} подарка`, `${count} подарков`]),
     countOf: ({ n, total }) => `${fmtNum(n)} из ${fmtNum(total)}`,
@@ -130,9 +134,9 @@ const locales = {
 
     profileEmpty: 'Вы можете купить подарок чтобы получить подарок в ответ.',
     storeTitle: 'Покупайте и отправляйте подарки',
-    storeSubtitle: 'Уникальный подарки для всех от Crypto Pay.',
+    storeSubtitle: 'Уникальные подарки для всех от Crypto Pay.',
     giftsTitle: 'Отправляйте подарки в Telegram',
-    giftsSubtitle: 'Отправляйте подарки, которые будут отоборажаться в профилях получателей в приложении.',
+    giftsSubtitle: 'Отправляйте подарки, которые будут отображаться в профилях получателей в приложении.',
     giftsEmpty: 'Вы ещё не купили ни одного подарка.',
     actionsTitle: 'Недавние действия',
     actionsSubtitle: 'Вот список ваших последних действий.',

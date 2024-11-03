@@ -6,8 +6,8 @@ defineProps({
 
 <template>
   <section>
-    <h1>{{ loc('giftsTitle') }}</h1>
-    <h3>{{ loc('giftsSubtitle') }}</h3>
+    <h1>{{ loc('actionsTitle') }}</h1>
+    <h3>{{ loc('actionsSubtitle') }}</h3>
   </section>
 </template>
 

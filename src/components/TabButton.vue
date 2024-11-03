@@ -26,7 +26,8 @@ defineProps({
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4px;
+  padding: 12px 4px 4px;
+  flex: 1;
 }
 .image {
   color: var(--color-icons);
