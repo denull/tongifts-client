@@ -1,10 +1,22 @@
 <script setup>
+import { ref, watch } from 'vue';
 import { loc } from '../locales.js';
 import ItemUser from './ItemUser.vue';
-defineProps({
+const props = defineProps({
   users: {},
   me: {}
 });
+const positions = ref({});
+watch(() => props.users, users => { // Proper way to compute standing (because multiple people can be on the same place)
+  let prev = null;
+  const pos = {};
+  for (let i = 0; i < users.length; i++) {
+    const user = users[i];
+    pos[user._id] = (prev && prev.gifts == user.gifts) ? pos[prev._id] : i;
+    prev = user;
+  }
+  positions.value = pos;
+}, { immediate: true });
 </script>
 
 <template>
@@ -13,10 +25,10 @@ defineProps({
 
     </div>
     <div class="list">
-      <ItemUser v-for="(user, index) in users" :user="user" :position="index" @click="$emit('select', user, index)"/>
+      <ItemUser v-for="user in users" :user="user" :position="positions[user._id]" @select="opts => $emit('select', user, positions[user._id], opts)"/>
     </div>
     <div class="you">
-      <ItemUser :user="me" :self="true" :position="me?.position" @click="$emit('select', me, me.position)"/>
+      <ItemUser :user="me" :self="true" :position="me?.position" @select="opts => $emit('select', me, me.position, opts)"/>
     </div>
   </section>
 </template>

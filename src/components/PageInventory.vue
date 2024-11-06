@@ -13,7 +13,7 @@ defineProps({
     <h3>{{ loc('giftsSubtitle') }}</h3>
 
     <div class="list">
-      <ItemGift v-for="item in items" :gift="gifts[item.giftId]" variant="inventory" @click="$emit('select', item)" @send="$emit('send', item)"/>
+      <ItemGift class="gift" v-for="item in items" :gift="gifts[item.giftId]" variant="inventory" @click="$emit('select', item)" @send="$emit('send', item)"/>
     </div>
   </section>
 </template>
@@ -26,6 +26,8 @@ section {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  row-gap: 12px;
+  row-gap: 8px;
+  padding: 8px 16px 16px;
 }
+
 </style>

@@ -10,11 +10,16 @@ defineProps({
     type: Number,
   },
 });
+const emit = defineEmits(['change']);
+function onToggle(i) {
+  emit('change', i);
+  Telegram.WebApp.HapticFeedback.selectionChanged();
+}
 </script>
 
 <template>
-  <div class="toggle">
-    <div v-for="(st, i) in states" class="state" :class="{ 'is-active': index == i }" @click="$emit('change', i)">
+  <div class="toggle" @click="onToggle(1 - index)">
+    <div v-for="(st, i) in states" class="state" :class="{ 'is-active': index == i }">
       <Icon v-if="st.icon" class="icon" :name="st.icon"/>{{ st.label || '' }}
     </div>
   </div>
@@ -28,6 +33,7 @@ defineProps({
   padding: 2px;
   background: var(--color-bg-secondary);
   border-radius: 99px;
+  cursor: pointer;
 }
 .state {
   display: flex;

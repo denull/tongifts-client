@@ -13,4 +13,8 @@ async function api(method, params = {}) {
 }
 
 export const init = () => api('init');
-export const loadReceived = (userId) => api(`users/${userId}/gifts`);
+export const loadUser = (userId) => api(`users/${userId}`);
+export const loadReceived = (userId, offs = 0) => api(`users/${userId}/gifts?offs=${offs}`);
+export const loadGiftActions = (giftId, offs = 0) => api(`gifts/${giftId}/history?offs=${offs}`);
+export const loadRecentActions = (offs = 0) => api(`actions?offs=${offs}`);
+export const buyGift = (giftId) => api(`gifts/${giftId}/buy`);

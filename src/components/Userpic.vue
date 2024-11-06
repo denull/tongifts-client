@@ -1,15 +1,19 @@
 <script setup>
+import { ref } from 'vue';
+
 defineProps({
   user: {
     type: Object,
     required: true
   },
 });
+const elRef = ref(null);
+defineExpose({ elRef });
 </script>
 
 <template>
-  <img v-if="user?.hasPhoto" class="userpic" :src="`user/${user?._id}/photo.jpg`"/>
-  <div v-else class="userpic is-missing">{{ user?.firstName ? user?.firstName[0] : '' }}{{ user?.lastName ? user?.lastName[0] : '' }}</div>
+  <img v-if="user?.hasPhoto" class="userpic" :src="`user/${user?._id}/photo.jpg`" :ref="el => elRef = el"/>
+  <div v-else class="userpic is-missing" :ref="el => elRef = el">{{ user?.firstName ? user?.firstName[0] : '' }}{{ user?.lastName ? user?.lastName[0] : '' }}</div>
 </template>
 
 <style>

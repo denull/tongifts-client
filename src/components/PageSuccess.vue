@@ -1,7 +1,10 @@
 <script setup>
 import { loc } from '../locales.js';
 defineProps({
+  gift: Object,
+  variant: String,
 });
+defineEmits(['action']);
 </script>
 
 <template>

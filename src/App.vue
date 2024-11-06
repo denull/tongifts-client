@@ -7,11 +7,13 @@ import PageInventory from './components/PageInventory.vue';
 import PageLeaderboard from './components/PageLeaderboard.vue';
 import PageProfile from './components/PageProfile.vue';
 import TabButton from './components/TabButton.vue';
-import { init } from './api.js';
+import { buyGift, init } from './api.js';
+import Popup from './components/Popup.vue';
 import PopupGift from './components/PopupGift.vue';
 import PageActions from './components/PageActions.vue';
 import PageSuccess from './components/PageSuccess.vue';
-import { gifts, theme } from './globals.js';
+import { gifts, historyEmpty, theme } from './globals.js';
+import PopupWait from './components/PopupWait.vue';
 
 const page = ref('store');
 const store = ref(null);
@@ -19,7 +21,10 @@ const inventory = ref(null);
 const leaderboard = ref(null);
 const me = ref(null);
 const received = ref(null);
-const boughtGift = ref(null);
+const giftPopup = ref(null);
+const waitPopup = ref(null);
+const giftBought = ref(null);
+const giftReceived = ref(null);
 const stack = ref([]);
 
 init().then(data => {
@@ -29,62 +34,128 @@ init().then(data => {
   leaderboard.value = data.leaderboard;
   me.value = data.me;
   received.value = data.received;
+
+  if (data.giftReceived) {
+    giftReceived.value = data.giftReceived;
+  }
 });
 function selectPage(newPage) {
   stack.value = [];
-  Telegram.WebApp.BackButton.isVisible = stack.value.length > 0;
   page.value = newPage;
+  Telegram.WebApp.BackButton.isVisible = stack.value.length > 0;
+  Telegram.WebApp.HapticFeedback.selectionChanged();
 }
 function pushPage(page) {
+  giftPopup.value = null;
+  giftBought.value = null;
+  giftReceived.value = null;
   stack.value = [...stack.value, page];
   Telegram.WebApp.BackButton.show();
 }
 function popPage() {
-  stack.value.pop();
+  stack.value = stack.value.slice(0, stack.value.length - 1);
   Telegram.WebApp.BackButton.isVisible = stack.value.length > 0;
 }
 Telegram.WebApp.BackButton.onClick(popPage);
-function selectUser(user, position) {
-  pushPage({ profile: Object.assign(user, { position }) });
+function selectUser(user, position, opts) {
+  //console.log('selecting', user, opts);
+  pushPage({ profile: Object.assign(user, { position }), userpicBounds: opts?.userpicBounds });
 }
-function viewGift(gift) {
-  pushPage({ storeGift: gift });
+function viewGift(gift, opts) {
+  pushPage({ storeGift: gift, giftBounds: opts?.giftBounds });
 }
 function viewBoughtGift(gift) {
-  boughtGift.value = gift;
+  giftPopup.value = { gift, bought: true };
+}
+function invoicePaid({ gift, invoiceId }) {
+  giftBought.value = gift;
+  giftPopup.value = null;
 }
 function viewSentGift(gift) {
-
+  giftPopup.value = { gift, sent: true };
 }
-function buyGift(gift) {
-
+async function doBuyGift(gift) {
+  const result = await buyGift(gift._id);
+  //Telegram.WebApp.openTelegramLink(result.url);
+  waitPopup.value = { gift, invoiceId: result.id };
 }
 function sendGift(gift) {
-
+  Telegram.WebApp.switchInlineQuery(gift._id, ['users']);
 }
 function showActions() {
   pushPage({ actions: true });
 }
+let mainAction, secondaryAction;
 watch(theme, (newTheme, oldTheme) => {
   oldTheme && document.documentElement.classList.remove(`is-${oldTheme}`);
   newTheme && document.documentElement.classList.add(`is-${newTheme}`);
+
+  const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--color-background');
+  Telegram.WebApp.setBackgroundColor(bgColor);
+  Telegram.WebApp.setHeaderColor(bgColor);
+  Telegram.WebApp.setBottomBarColor(bgColor);
 }, { immediate: true });
+watch([stack, giftPopup, giftBought, giftReceived, historyEmpty, theme], ([stack, popup, giftBought, giftReceived, historyEmpty, theme]) => {
+  let mainButton = null;
+  let secondaryButton = null;
+  let actions = [];
+  const style = getComputedStyle(document.documentElement);
+  const bgColor = style.getPropertyValue('--color-background');
+  const bgSecColor = style.getPropertyValue('--color-bg-secondary');
+  if (stack[stack.length - 1]?.actions && historyEmpty) {
+    mainButton = loc('btnOpenStore');
+    actions = [() => selectPage('store')];
+  } else
+  if (stack[stack.length - 1]?.storeGift) {
+    mainButton = loc('btnBuyGift');
+    actions = [() => doBuyGift(stack[stack.length - 1]?.storeGift)];
+  } else
+  if (popup) {
+    mainButton = popup.sent ? loc('btnClose') : loc('btnSendToContact');
+    actions = [popup.sent ? () => giftPopup.value = null : sendGift];
+  } else
+  if (giftBought) {
+    mainButton = loc('btnSendGift');
+    secondaryButton = loc('btnOpenStore');
+    actions = [() => selectPage('gifts'), () => selectPage('store')];
+  } else
+  if (giftReceived) {
+    mainButton = loc('btnOpenProfile');
+    actions = [() => selectPage('profile')];
+  }
+  mainAction = actions[0];
+  secondaryAction = actions[1];
+  Telegram.WebApp.MainButton.setParams(mainButton ? { text: mainButton, is_visible: true } : { is_visible: false });
+  Telegram.WebApp.SecondaryButton.setParams(secondaryButton ? { text: secondaryButton, is_visible: true } : { is_visible: false });
+  Telegram.WebApp.setBottomBarColor(bgSecColor);
+});
+Telegram.WebApp.MainButton.onClick(() => mainAction && mainAction());
+Telegram.WebApp.SecondaryButton.onClick(() => secondaryAction && secondaryAction());
+Telegram.WebApp.disableVerticalSwipes();
+Telegram.WebApp.expand();
 </script>
 
 <template>
   <main>
-    <KeepAlive><PageStore v-if="page == 'store'" :gifts="store" @select="viewGift" @buy="buyGift"/></KeepAlive>
+    <KeepAlive><PageStore v-if="page == 'store'" :gifts="store" @select="viewGift" @buy="doBuyGift"/></KeepAlive>
     <KeepAlive><PageInventory v-if="page == 'gifts'" :items="inventory" @select="viewBoughtGift" @send="sendGift"/></KeepAlive>
     <KeepAlive><PageLeaderboard v-if="page == 'leaderboard'" :users="leaderboard" :me="me" @select="selectUser"/></KeepAlive>
     <KeepAlive><PageProfile v-if="page == 'profile'" :user="me" :position="me.position" :self="true" :received="received" @actions="showActions" @select="viewSentGift"/></KeepAlive>
 
     <template v-for="item in stack">
-      <PageGift v-if="item.storeGift" :gift="item.storeGift"/>
-      <PageProfile v-else-if="item.profile" :user="item.profile" :position="item.profile.position"/>
+      <PageProfile v-if="item.profile" :user="item.profile" :position="item.profile.position" :userpicBounds="item.userpicBounds" @select="viewSentGift"/>
     </template>
     
-    <PopupGift v-if="boughtGift" :gift="boughtGift"/>
+    <Transition name="popup" :duration="250">
+      <Popup v-if="giftPopup" @close="giftPopup = null">
+        <PopupGift :gift="giftPopup.gift" :sent="!!giftPopup.sent" @user="selectUser"/>
+      </Popup>
+      <Popup v-else-if="waitPopup" @close="waitPopup = null">
+        <PopupWait :invoiceId="waitPopup.invoiceId" @paid="invoicePaid(waitPopup)"/>
+      </Popup>
+    </Transition>
   </main>
+  <div class="footer-backdrop"></div>
   <footer>
     <TabButton name="store" :active="page == 'store'" @click="selectPage('store')"></TabButton>
     <TabButton name="gifts" :active="page == 'gifts'" @click="selectPage('gifts')"></TabButton>
@@ -92,14 +163,25 @@ watch(theme, (newTheme, oldTheme) => {
     <TabButton name="profile" :active="page == 'profile'" @click="selectPage('profile')"></TabButton>
   </footer>
 
-  <PageActions v-if="stack[stack.length - 1]?.actions" />
-  <PageSuccess v-if="false" />
+  <PageGift v-if="stack[stack.length - 1]?.storeGift" :gift="stack[stack.length - 1]?.storeGift" :giftBounds="stack[stack.length - 1]?.giftBounds" @user="selectUser"/>
+  <PageActions v-if="stack[stack.length - 1]?.actions" @user="selectUser" />
+  <PageSuccess v-if="giftBought" :gift="giftBought" variant="buy" @action="selectPage('gifts')"/>
+  <PageSuccess v-if="giftReceived" :gift="giftReceived" variant="receive" @action="selectPage('profile')" />
 </template>
 
 <style scoped>
 main {
   flex: 1;
   height: 0;
+}
+.footer-backdrop {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  backdrop-filter: blur(50px);
+  z-index: 1;
 }
 footer {
   position: absolute;
@@ -112,9 +194,31 @@ footer {
   background-color: var(--color-tabbar);
   backdrop-filter: blur(50px);
   border-top: 0.33px solid var(--color-separator);
-  z-index: 1;
+  z-index: 2;
 }
+
 @media (min-width: 1024px) {
 
+}
+</style>
+<style>
+.popup-enter-active .popup,
+.popup-leave-active .popup {
+  transition: transform 0.25s ease-in-out;
+}
+
+.popup-enter-from .popup,
+.popup-leave-to .popup {
+  transform: translateY(418px);
+}
+
+.popup-enter-active .popup-overlay,
+.popup-leave-active .popup-overlay {
+  transition: opacity 0.25s ease-in-out;
+}
+
+.popup-enter-from .popup-overlay,
+.popup-leave-to .popup-overlay {
+  opacity: 0;
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue';
 import { loc } from '../locales.js';
 import Icon from './Icon.vue';
 import Userpic from './Userpic.vue';
@@ -11,11 +12,12 @@ defineProps({
     type: Number,
   }
 });
+const userpicEl = ref(null);
 </script>
 
 <template>
-  <div class="user">
-    <Userpic class="userpic" :user="user"/>
+  <div class="user" @click="$emit('select', { userpicBounds: userpicEl.getBoundingClientRect() })">
+    <Userpic class="userpic" :user="user" :ref="comp => userpicEl = comp.elRef"/>
     <div class="body">
       <div class="name">{{ user?.firstName }}{{ user?.lastName ? ' ' + user?.lastName : '' }}<span v-if="self" class="you">{{ loc('you') }}</span></div>
       <div class="gifts"><Icon class="gifts-icon" name="gifts"/> {{ loc('numGiftsShort')(user?.gifts || 0) }}</div>
