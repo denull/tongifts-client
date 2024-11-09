@@ -23,6 +23,7 @@ defineProps({
 <style scoped>
 section {
   overflow-y: auto;
+  overscroll-behavior-y: var(--overscroll);
 }
 .list {
   width: 100%;

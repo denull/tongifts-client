@@ -116,7 +116,7 @@ watch([loaded, theme, giftPopup, waitPopup, error], ([loaded, newTheme, giftPopu
   if (!loaded) {
     return;
   }
-  document.documentElement.className = `is-${newTheme}`;
+  document.documentElement.className = `is-${newTheme} is-${Telegram.WebApp.platform}`;
 
   const anyPopup = giftPopup || waitPopup || error;
   const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--color-background');
@@ -156,7 +156,7 @@ watch([stack, giftPopup, giftBought, giftReceived, historyEmpty, theme], ([stack
   mainAction = actions[0];
   secondaryAction = actions[1];
   Telegram.WebApp.MainButton.setParams(mainButton ? { text: mainButton, is_visible: true } : { is_visible: false });
-  Telegram.WebApp.SecondaryButton.setParams(secondaryButton ? { text: secondaryButton, is_visible: true } : { is_visible: false });
+  Telegram.WebApp.SecondaryButton.setParams(secondaryButton ? { text: secondaryButton, position: 'bottom', is_visible: true } : { is_visible: false });
   Telegram.WebApp.setBottomBarColor(bgSecColor);
 });
 Telegram.WebApp.MainButton.onClick(() => mainAction && mainAction());
@@ -212,7 +212,7 @@ main {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 100px;
+  height: var(--tabbar-height);
   backdrop-filter: blur(50px);
   z-index: 1;
 }
@@ -221,7 +221,7 @@ footer {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 100px;
+  height: var(--tabbar-height);
   display: flex;
   justify-content: space-evenly;
   background-color: var(--color-tabbar);

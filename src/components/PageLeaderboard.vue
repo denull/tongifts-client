@@ -70,6 +70,7 @@ async function search() {
   flex: 1;
   height: 0;
   overflow-y: auto;
+  overscroll-behavior-y: var(--overscroll);
   border-top: 0.33px solid var(--color-separator);
 }
 .search {

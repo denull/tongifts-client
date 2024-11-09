@@ -24,6 +24,7 @@ defineProps({
 <style scoped>
 section {
   overflow-y: auto;
+  overscroll-behavior-y: var(--overscroll);
 }
 .icon {
   margin-top: 24px;

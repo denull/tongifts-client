@@ -31,6 +31,7 @@ loadRecentActions().then(result => {
 <style scoped>
 section {
   overflow-y: auto;
+  overscroll-behavior-y: var(--overscroll);
   overflow-x: hidden;
   z-index: 2;
   padding-bottom: 0;

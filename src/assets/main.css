@@ -32,6 +32,12 @@ html {
   --color-background-dim: #B2B2B2;
   --color-tabbar: var(--color-bg-tabbar);
   --color-active-toggle: var(--color-white);
+  --tabbar-height: 66px;
+  --overscroll: none;
+}
+html.is-ios {
+  --tabbar-height: 92px;
+  --overscroll: auto;
 }
 html.is-night {
   --color-foreground: var(--color-white);
@@ -88,7 +94,7 @@ section {
   align-items: center;
   width: 100%;
   height: 100%;
-  padding-bottom: 100px;
+  padding-bottom: var(--tabbar-height);
   z-index: 1;
 }
 h1 {

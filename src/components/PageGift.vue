@@ -42,6 +42,7 @@ section {
   align-items: start;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior-y: var(--overscroll);
   z-index: 2;
 }
 section > * {

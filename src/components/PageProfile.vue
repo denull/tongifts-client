@@ -76,8 +76,9 @@ onMounted(() => {
 <style scoped>
 section {
   padding: 8px 0;
-  padding-bottom: 100px;
+  padding-bottom: var(--tabbar-height);
   overflow-y: auto;
+  overscroll-behavior-y: var(--overscroll);
 }
 .toggle-theme {
   position: absolute;
