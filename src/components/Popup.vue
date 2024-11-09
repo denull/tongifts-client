@@ -1,11 +1,14 @@
 <script setup>
 import Icon from './Icon.vue';
+const props = defineProps({
+  height: Number,
+});
 </script>
 
 <template>
   <div class="popup-wrapper">
     <div class="popup-overlay" @click="$emit('close')"></div>
-    <div class="popup">
+    <div class="popup" :style="{ height: `${height}px` }">
       <button class="btn-close"><Icon class="btn-close-icon" name="close" @click="$emit('close')"/></button>
       <slot></slot>
     </div>
@@ -31,7 +34,6 @@ import Icon from './Icon.vue';
   left: 0;
   right: 0;
   bottom: 0;
-  height: 418px;
   background-color: var(--color-bg-secondary);
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -56,6 +58,7 @@ import Icon from './Icon.vue';
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
 }
 .btn-close-icon {
   width: 24px;

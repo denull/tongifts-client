@@ -2,17 +2,18 @@
 import { onBeforeUnmount } from 'vue';
 import { loc } from '../locales.js';
 const props = defineProps({
-  invoiceId: String,
+  invoiceId: Number,
 });
 const emit = defineEmits(['paid']);
 const ws = new WebSocket(import.meta.env.DEV ? 'ws://localhost:3041' : 'ws');
 ws.onopen = () => {
   ws.send(JSON.stringify({ init: Telegram.WebApp.initData, invoiceId: props.invoiceId }));
 }
-ws.onmessage = (data) => {
-  data = JSON.parse(data);
+ws.onmessage = (ev) => {
+  const data = JSON.parse(ev.data);
+  console.log(data);
   if (data.status == 'paid') {
-    emit('paid');
+    emit('paid', data.action);
   }
 }
 onBeforeUnmount(() => {

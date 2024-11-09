@@ -1,4 +1,5 @@
 <script setup>
+import { Vue3Lottie } from 'vue3-lottie';
 import { loc } from '../locales.js';
 import Icon from './Icon.vue';
 defineProps({
@@ -15,7 +16,10 @@ defineProps({
 
 <template>
   <div class="button" :class="{ 'is-active': active }">
-    <div class="image"><Icon :name="name" /></div>
+    <div class="image">
+      <Vue3Lottie v-if="active" :animation-link="`assets/anim/tab-${name}.json`" :width="26" :height="26" class="anim" :loop="false"/>
+      <Icon v-else :name="name" class="icon"/>
+    </div>
     <div class="label">{{ loc(name) }}</div>
   </div>
 </template>
@@ -30,7 +34,15 @@ defineProps({
   flex: 1;
 }
 .image {
+  width: 26px;
+  height: 26px;
   color: var(--color-icons);
+  position: relative;
+  filter: saturate(0);
+  transition: filter 0.6s;
+}
+.anim {
+  position: absolute;
 }
 .label {
   font-size: 12px;
@@ -41,6 +53,6 @@ defineProps({
   color: var(--color-primary);
 }
 .button.is-active .image {
-  color: var(--color-primary);
+  filter: none;
 }
 </style>

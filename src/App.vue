@@ -12,8 +12,9 @@ import Popup from './components/Popup.vue';
 import PopupGift from './components/PopupGift.vue';
 import PageActions from './components/PageActions.vue';
 import PageSuccess from './components/PageSuccess.vue';
-import { gifts, historyEmpty, theme } from './globals.js';
+import { gifts, historyEmpty, locale, theme } from './globals.js';
 import PopupWait from './components/PopupWait.vue';
+import PopupError from './components/PopupError.vue';
 
 const page = ref('store');
 const store = ref(null);
@@ -26,6 +27,8 @@ const waitPopup = ref(null);
 const giftBought = ref(null);
 const giftReceived = ref(null);
 const stack = ref([]);
+const error = ref(null);
+const loaded = ref(false);
 
 init().then(data => {
   gifts.value = Object.fromEntries(data.gifts.map(gift => [gift._id, gift]));
@@ -34,14 +37,24 @@ init().then(data => {
   leaderboard.value = data.leaderboard;
   me.value = data.me;
   received.value = data.received;
+  theme.value = data.me.theme || (Telegram.WebApp.colorScheme == 'dark' ? 'night' : 'day');
+  locale.value = data.me.locale;
 
-  if (data.giftReceived) {
-    giftReceived.value = data.giftReceived;
+  if (data.gift) {
+    if (data.gift.error) {
+      error.value = data.gift.error;
+    } else {
+      giftReceived.value = data.gift.receive;
+    }
   }
+
+  loaded.value = true;
 });
 function selectPage(newPage) {
   stack.value = [];
   page.value = newPage;
+  giftBought.value = null;
+  giftReceived.value = null;
   Telegram.WebApp.BackButton.isVisible = stack.value.length > 0;
   Telegram.WebApp.HapticFeedback.selectionChanged();
 }
@@ -53,9 +66,20 @@ function pushPage(page) {
   Telegram.WebApp.BackButton.show();
 }
 function popPage() {
-  stack.value = stack.value.slice(0, stack.value.length - 1);
+  if (giftPopup.value) {
+    giftPopup.value = null;
+  } else
+  if (waitPopup.value) {
+    waitPopup.value = null;
+  } else
+  if (error.value) {
+    error.value = null;
+  } else {
+    stack.value = stack.value.slice(0, stack.value.length - 1);
+  }
   Telegram.WebApp.BackButton.isVisible = stack.value.length > 0;
 }
+window.pop = popPage;
 Telegram.WebApp.BackButton.onClick(popPage);
 function selectUser(user, position, opts) {
   //console.log('selecting', user, opts);
@@ -67,34 +91,40 @@ function viewGift(gift, opts) {
 function viewBoughtGift(gift) {
   giftPopup.value = { gift, bought: true };
 }
-function invoicePaid({ gift, invoiceId }) {
+function invoicePaid(gift) {
+  inventory.value = [gift, ...inventory.value];
   giftBought.value = gift;
   giftPopup.value = null;
+  waitPopup.value = null;
 }
 function viewSentGift(gift) {
   giftPopup.value = { gift, sent: true };
 }
 async function doBuyGift(gift) {
   const result = await buyGift(gift._id);
-  //Telegram.WebApp.openTelegramLink(result.url);
+  Telegram.WebApp.openTelegramLink(result.url);
   waitPopup.value = { gift, invoiceId: result.id };
 }
 function sendGift(gift) {
-  Telegram.WebApp.switchInlineQuery(gift._id, ['users']);
+  Telegram.WebApp.switchInlineQuery(gift.code, ['users']);
 }
 function showActions() {
   pushPage({ actions: true });
 }
 let mainAction, secondaryAction;
-watch(theme, (newTheme, oldTheme) => {
-  oldTheme && document.documentElement.classList.remove(`is-${oldTheme}`);
-  newTheme && document.documentElement.classList.add(`is-${newTheme}`);
+watch([loaded, theme, giftPopup, waitPopup, error], ([loaded, newTheme, giftPopup, waitPopup, error]) => {
+  if (!loaded) {
+    return;
+  }
+  document.documentElement.className = `is-${newTheme}`;
 
+  const anyPopup = giftPopup || waitPopup || error;
   const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--color-background');
+  const headerColor = anyPopup ? getComputedStyle(document.documentElement).getPropertyValue('--color-background-dim') : bgColor;
   Telegram.WebApp.setBackgroundColor(bgColor);
-  Telegram.WebApp.setHeaderColor(bgColor);
+  Telegram.WebApp.setHeaderColor(headerColor);
   Telegram.WebApp.setBottomBarColor(bgColor);
-}, { immediate: true });
+});
 watch([stack, giftPopup, giftBought, giftReceived, historyEmpty, theme], ([stack, popup, giftBought, giftReceived, historyEmpty, theme]) => {
   let mainButton = null;
   let secondaryButton = null;
@@ -112,7 +142,7 @@ watch([stack, giftPopup, giftBought, giftReceived, historyEmpty, theme], ([stack
   } else
   if (popup) {
     mainButton = popup.sent ? loc('btnClose') : loc('btnSendToContact');
-    actions = [popup.sent ? () => giftPopup.value = null : sendGift];
+    actions = [popup.sent ? () => giftPopup.value = null : () => sendGift(popup.gift)];
   } else
   if (giftBought) {
     mainButton = loc('btnSendGift');
@@ -137,21 +167,24 @@ Telegram.WebApp.expand();
 
 <template>
   <main>
-    <KeepAlive><PageStore v-if="page == 'store'" :gifts="store" @select="viewGift" @buy="doBuyGift"/></KeepAlive>
-    <KeepAlive><PageInventory v-if="page == 'gifts'" :items="inventory" @select="viewBoughtGift" @send="sendGift"/></KeepAlive>
-    <KeepAlive><PageLeaderboard v-if="page == 'leaderboard'" :users="leaderboard" :me="me" @select="selectUser"/></KeepAlive>
-    <KeepAlive><PageProfile v-if="page == 'profile'" :user="me" :position="me.position" :self="true" :received="received" @actions="showActions" @select="viewSentGift"/></KeepAlive>
+    <KeepAlive><PageStore v-if="page == 'store'" :class="{ 'is-bg': stack.length > 0 }" :gifts="store" @select="viewGift" @buy="doBuyGift"/></KeepAlive>
+    <KeepAlive><PageInventory v-if="page == 'gifts'" :class="{ 'is-bg': stack.length > 0 }" :items="inventory" @select="viewBoughtGift" @send="sendGift" @store="selectPage('store')"/></KeepAlive>
+    <KeepAlive><PageLeaderboard v-if="page == 'leaderboard'" :class="{ 'is-bg': stack.length > 0 }" :users="leaderboard" :me="me" @select="selectUser"/></KeepAlive>
+    <KeepAlive><PageProfile v-if="page == 'profile'" :class="{ 'is-bg': stack.length > 0 }" :user="me" :position="me.position" :self="true" :received="received" @actions="showActions" @select="viewSentGift" @store="selectPage('store')"/></KeepAlive>
 
-    <template v-for="item in stack">
-      <PageProfile v-if="item.profile" :user="item.profile" :position="item.profile.position" :userpicBounds="item.userpicBounds" @select="viewSentGift"/>
+    <template v-for="(item, i) in stack">
+      <PageProfile v-if="item.profile" :class="{ 'is-bg': i < stack.length - 1 }" :user="item.profile" :position="item.profile.position" :userpicBounds="item.userpicBounds" @select="viewSentGift"/>
     </template>
     
     <Transition name="popup" :duration="250">
-      <Popup v-if="giftPopup" @close="giftPopup = null">
+      <Popup v-if="giftPopup" @close="giftPopup = null" :height="418">
         <PopupGift :gift="giftPopup.gift" :sent="!!giftPopup.sent" @user="selectUser"/>
       </Popup>
-      <Popup v-else-if="waitPopup" @close="waitPopup = null">
-        <PopupWait :invoiceId="waitPopup.invoiceId" @paid="invoicePaid(waitPopup)"/>
+      <Popup v-else-if="waitPopup" @close="waitPopup = null" :height="200">
+        <PopupWait :invoiceId="waitPopup.invoiceId" @paid="gift => invoicePaid(gift)"/>
+      </Popup>
+      <Popup v-else-if="error" @close="error = null" :height="200">
+        <PopupError :error="error"/>
       </Popup>
     </Transition>
   </main>
@@ -165,8 +198,8 @@ Telegram.WebApp.expand();
 
   <PageGift v-if="stack[stack.length - 1]?.storeGift" :gift="stack[stack.length - 1]?.storeGift" :giftBounds="stack[stack.length - 1]?.giftBounds" @user="selectUser"/>
   <PageActions v-if="stack[stack.length - 1]?.actions" @user="selectUser" />
-  <PageSuccess v-if="giftBought" :gift="giftBought" variant="buy" @action="selectPage('gifts')"/>
-  <PageSuccess v-if="giftReceived" :gift="giftReceived" variant="receive" @action="selectPage('profile')" />
+  <PageSuccess v-if="giftBought" :gift="giftBought" variant="purchased" @action="selectPage('gifts')"/>
+  <PageSuccess v-if="giftReceived" :gift="giftReceived" variant="received" @action="selectPage('profile')" />
 </template>
 
 <style scoped>
@@ -175,7 +208,7 @@ main {
   height: 0;
 }
 .footer-backdrop {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -184,7 +217,7 @@ main {
   z-index: 1;
 }
 footer {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -196,9 +229,11 @@ footer {
   border-top: 0.33px solid var(--color-separator);
   z-index: 2;
 }
-
-@media (min-width: 1024px) {
-
+.is-bg {
+  transform: scale(0.94);
+  filter: blur(2px);
+  opacity: 0.3;
+  transition: transform 0.3s, filter 0.3s, opacity 0.3s;
 }
 </style>
 <style>

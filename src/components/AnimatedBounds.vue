@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 
 const props = defineProps({
   from: {
@@ -21,32 +21,42 @@ if (props.from) {
     elRef.value.replaceWith(clone);
     clone.style.visibility = 'hidden';
 
+    const finalX = finalBounds.left + finalBounds.width * 0.5;
+    const finalY = finalBounds.top + finalBounds.height * 0.5;
+    const initX = props.from.left + props.from.width * 0.5;
+    const initY = props.from.top + props.from.height * 0.5;
+
     const style = elRef.value.style;
-    const deltaX = props.from.left - finalBounds.left;
-    const deltaY = props.from.top - finalBounds.top;
-    const scaleX = props.from.width / finalBounds.width;
-    const scaleY = props.from.height / finalBounds.height;
+    const deltaX = initX - finalX;
+    const deltaY = initY - finalY;
+    const scale = Math.min(props.from.width / finalBounds.width, props.from.height / finalBounds.height);
     //style.transition = props.transition;
 
     style.position = 'fixed';
+    style.display = 'flex';
     style.top = `${finalBounds.top}px`;
     style.left = `${finalBounds.left}px`;
     style.zIndex = 1000000;
     style.pointerEvents = 'none';
-    style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+    style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scale}, ${scale})`;
     
-    elRef.value.ontransitionend = () => {
+    let done = false;
+    function finish() {
+      done = true;
       clone.replaceWith(elRef.value);
 
       style.position = 'static';
       style.zIndex = 'auto';
       style.pointerEvents = 'all';
-      //elRef.value.style.visibility = 'visible';
     }
+    elRef.value.ontransitionend = finish;
     document.body.append(elRef.value);
     requestAnimationFrame(() => {
       style.transition = props.transition;
       style.transform = 'none';
+    });
+    onBeforeUnmount(() => {
+      !done && finish();
     });
   });
 }
@@ -55,3 +65,9 @@ if (props.from) {
 <template>
   <div :ref="el => elRef = el" class="animated"><slot></slot></div>
 </template>
+
+<style scoped>
+.animated {
+  display: flex;
+}
+</style>

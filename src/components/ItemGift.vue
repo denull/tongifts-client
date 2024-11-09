@@ -27,18 +27,18 @@ const imageEl = ref(null);
     <Userpic v-if="variant == 'profile'" class="sender" :user="from"/>
     <div class="name" v-if="variant == 'inventory'">{{ gift.name[locale] }}</div>
     <AnimatedBounds class="image" :class="{ ['is-' + variant]: true }" :from="giftBounds">
-      <Vue3Lottie v-if="['store', 'page'].includes(variant)" :animationData="JSON.parse(gift.anim)" :width="variant == 'store' ? 117 : 73" :height="variant == 'store' ? 117 : 73" :ref="el => imageEl = el?.$el"/>
+      <Vue3Lottie v-if="['store', 'page'].includes(variant)" :animationData="JSON.parse(gift.anim)" :width="variant == 'store' ? 117 : 73" :height="variant == 'store' ? 117 : 73" :ref="el => imageEl = el?.$el" :loop="false"/>
       <img v-else :src="`assets/gift/${gift.image}.png`" :ref="el => imageEl = el"/>
     </AnimatedBounds>
     <div class="name" v-if="['store', 'profile'].includes(variant)">{{ gift.name[locale] }}</div>
-    <button v-if="variant == 'inventory'" class="is-send" @click="$emit('send')">
+    <button v-if="variant == 'inventory'" class="is-send" @click.stop="$emit('send')">
       <div class="btn-label">{{ loc('btnSend') }}</div>
     </button>
-    <button v-else-if="variant == 'store' && gift.sold < gift.total" @click="$emit('buy')" class="is-with-icon">
+    <button v-else-if="variant == 'store' && gift.sold < gift.total" @click.stop="$emit('buy')" class="is-with-icon">
       <Icon class="btn-icon" :name="'asset' + gift.asset"/>
       <div class="btn-label">{{ gift.price }} {{ gift.asset }}</div>
     </button>
-    <button v-else-if="variant == 'store'" class="is-disabled">
+    <button v-else-if="variant == 'store'" class="is-disabled" @click.stop="() => {}">
       <div class="btn-label">{{ loc('btnSoldOut') }}</div>
     </button>
   </div>
@@ -82,6 +82,7 @@ const imageEl = ref(null);
 }
 .availability {
   align-self: flex-end;
+  text-align: right;
   color: var(--color-foreground);
   font-size: 13px;
   opacity: 0.5;
@@ -100,7 +101,8 @@ const imageEl = ref(null);
 .image {
   width: 73px;
   height: 73px;
-  margin-top: 8px;
+  margin-top: auto;
+  margin-bottom: auto;
   z-index: 1;
 }
 .image > * {
@@ -117,6 +119,7 @@ const imageEl = ref(null);
 }
 .name {
   margin-top: 4px;
+  margin-bottom: 8px;
   font-size: 17px;
   font-weight: 500;
   line-height: 1.3;
@@ -151,7 +154,12 @@ button.is-with-icon {
 }
 button.is-disabled {
   cursor: default;
-  background: var(--color-label-secondary);
+  color: var(--color-label-secondary);
+  background: rgba(0,0,0,0.1);
+  backdrop-filter: blur(50px);
+}
+:global(html.is-night .gift button.is-disabled) {
+  background: rgba(255,255,255,0.05);
 }
 button.is-send {
   width: 100%;

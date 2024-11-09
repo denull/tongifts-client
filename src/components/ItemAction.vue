@@ -31,7 +31,7 @@ defineProps({
 
 <style scoped>
 .action {
-  height: 56px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   padding: 0px 16px;
@@ -77,6 +77,7 @@ defineProps({
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding: 5px 0;
 }
 .type {
   font-size: 13px;

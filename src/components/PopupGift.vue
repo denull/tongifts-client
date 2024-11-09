@@ -3,6 +3,8 @@ import { loc } from '../locales.js';
 import Icon from './Icon.vue';
 import { gifts, locale } from '@/globals.js';
 import Userpic from './Userpic.vue';
+import StarSpawner from './StarSpawner.vue';
+import { Vue3Lottie } from 'vue3-lottie';
 defineProps({
   gift: Object,
   sent: Boolean,
@@ -10,9 +12,10 @@ defineProps({
 </script>
 
 <template>
-  <Icon class="stars" name="stars"/>
-  <!--Vue3Lottie :animationLink="`assets/anim/gift-${gifts[gift.giftId].image}.json`" :width="150" :height="150"/-->
-  <img :src="`assets/gift/${gifts[gift.giftId].image}.png`" class="image"/>
+  <!--Icon class="stars" name="stars"/-->
+  <StarSpawner class="stars"/>
+  <Vue3Lottie :animationData="JSON.parse(gifts[gift.giftId].anim)" :width="150" :height="150" :loop="false"/>
+  <!--img :src="`assets/gift/${gifts[gift.giftId].image}.png`" class="image"/-->
   <h1>{{ sent ? gifts[gift.giftId].name[locale] : loc('btnSendGift') }}</h1>
   <table>
     <tbody>
@@ -32,7 +35,7 @@ defineProps({
   position: absolute;
   top: 20px;
   left: 0px;
-  width: 291px;
+  height: 150px;
   right: 0px;
   margin: auto;
 }

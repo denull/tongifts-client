@@ -17,4 +17,6 @@ export const loadUser = (userId) => api(`users/${userId}`);
 export const loadReceived = (userId, offs = 0) => api(`users/${userId}/gifts?offs=${offs}`);
 export const loadGiftActions = (giftId, offs = 0) => api(`gifts/${giftId}/history?offs=${offs}`);
 export const loadRecentActions = (offs = 0) => api(`actions?offs=${offs}`);
+export const searchUsers = (query, offs = 0) => api(`search?offs=${offs}`, { query });
 export const buyGift = (giftId) => api(`gifts/${giftId}/buy`);
+export const updateSettings = (update) => api(`settings`, update);

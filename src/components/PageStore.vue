@@ -38,7 +38,7 @@ section {
 }
 .gift {
   width: calc(50% - 6px);
-  height: 246px;
+  /*height: 246px;*/
   /*background: linear-gradient(180deg, rgba(254, 160, 65, 0.2) 0%, rgba(254, 159, 65, 0.1) 100%), var(--color-background);*/
 }
 </style>

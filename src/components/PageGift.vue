@@ -6,6 +6,7 @@ import ItemAction from './ItemAction.vue';
 import { ref } from 'vue';
 import Icon from './Icon.vue';
 import { loadGiftActions } from '@/api.js';
+import ItemEmpty from './ItemEmpty.vue';
 const props = defineProps({
   gift: Object,
   giftBounds: Object,
@@ -30,6 +31,7 @@ loadGiftActions(props.gift._id).then(result => {
     <div class="header">{{ loc('recentActions') }}</div>
     <div class="list">
       <ItemAction v-for="action in actions" :action="action" variant="gift" class="action" @user="user => $emit('user', user, null, null)"/>
+      <ItemEmpty v-if="!actions.length" text="noRecentActions" :image="false" :action="false" class="empty" />
     </div>
   </section>
 </template>
@@ -38,7 +40,6 @@ loadGiftActions(props.gift._id).then(result => {
 section {
   padding: 16px;
   align-items: start;
-  padding-bottom: 100px;
   overflow-x: hidden;
   overflow-y: auto;
   z-index: 2;
@@ -49,6 +50,9 @@ section > * {
 .gift {
   width: calc(100vw - 32px);
   height: calc(100vw - 32px);
+}
+.empty {
+  background: none !important;
 }
 .availability {
   display: inline-block;
@@ -61,9 +65,12 @@ section > * {
   line-height: 22px;
   letter-spacing: -0.1px;
   margin-left: 12px;
+  margin-top: 3px;
 }
 h1 {
   margin-top: 12px;
+  display: flex;
+  align-items: center;
 }
 h3 {
   text-align: left;

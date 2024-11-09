@@ -2,6 +2,7 @@
 import { gifts } from '@/globals.js';
 import { loc } from '../locales.js';
 import ItemGift from './ItemGift.vue';
+import ItemEmpty from './ItemEmpty.vue';
 defineProps({
   items: {},
 });
@@ -14,6 +15,7 @@ defineProps({
 
     <div class="list">
       <ItemGift class="gift" v-for="item in items" :gift="gifts[item.giftId]" variant="inventory" @click="$emit('select', item)" @send="$emit('send', item)"/>
+      <ItemEmpty v-if="!items.length" text="giftsEmpty" @action="$emit('store')"/>
     </div>
   </section>
 </template>
@@ -23,9 +25,10 @@ section {
   overflow-y: auto;
 }
 .list {
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  gap: 8px;
   row-gap: 8px;
   padding: 8px 16px 16px;
 }

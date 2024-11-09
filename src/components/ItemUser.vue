@@ -9,7 +9,6 @@ defineProps({
     type: Boolean,
   },
   position: {
-    type: Number,
   }
 });
 const userpicEl = ref(null);
@@ -17,12 +16,12 @@ const userpicEl = ref(null);
 
 <template>
   <div class="user" @click="$emit('select', { userpicBounds: userpicEl.getBoundingClientRect() })">
-    <Userpic class="userpic" :user="user" :ref="comp => userpicEl = comp.elRef"/>
+    <Userpic class="userpic" :user="user" :ref="comp => userpicEl = comp?.elRef"/>
     <div class="body">
       <div class="name">{{ user?.firstName }}{{ user?.lastName ? ' ' + user?.lastName : '' }}<span v-if="self" class="you">{{ loc('you') }}</span></div>
       <div class="gifts"><Icon class="gifts-icon" name="gifts"/> {{ loc('numGiftsShort')(user?.gifts || 0) }}</div>
     </div>
-    <div class="position">{{ position < 3 ? ['🥇','🥈','🥉'][position] : `#${position + 1}` }}</div>
+    <div class="position" v-if="position !== null && !isNaN(position)">{{ position < 3 ? ['🥇','🥈','🥉'][position] : `#${position + 1}` }}</div>
   </div>
 </template>
 
