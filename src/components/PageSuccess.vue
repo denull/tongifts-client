@@ -70,7 +70,7 @@ section {
   left: 16px;
   right: 16px;
   bottom: 16px;
-  height: 53px;
+  min-height: 53px;
   color: var(--color-white);
   background-color: var(--color-bg-notification);
   border-radius: 14px;
@@ -94,12 +94,14 @@ section {
   display: flex;
   flex-direction: column;
   flex: 1;
+  line-height: 15px;
+  padding: 5px 0;
 }
 .notification-title {
   font-weight: 500;
 }
 .notification-subtitle {
-  margin-top: -2px;
+  margin-top: 4px;
 }
 .action {
   font-size: 17px;
