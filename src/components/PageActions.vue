@@ -5,25 +5,29 @@ import { ref } from 'vue';
 import ItemAction from './ItemAction.vue';
 import { historyEmpty } from '@/globals.js';
 import ItemEmpty from './ItemEmpty.vue';
+import { makeScroller } from '@/utils.js';
 defineProps({
 });
 const actions = ref([]);
 historyEmpty.value = false;
 
 // load actions
+let listScrolled = () => {};
 loadRecentActions().then(result => {
   actions.value = result;
   historyEmpty.value = result.length == 0;
+  listScrolled = makeScroller(actions, (offs) => loadRecentActions(offs));
 });
 function isDateDifferent(d0, d1) {
   d0 = new Date(d0);
   d1 = new Date(d1);
   return d0.getFullYear() != d1.getFullYear() || d0.getMonth() != d1.getMonth() || d0.getDate() != d1.getDate();
 }
+
 </script>
 
 <template>
-  <section>
+  <section v-on:scroll="listScrolled">
     <h1>{{ loc('actionsTitle') }}</h1>
     <h3>{{ loc('actionsSubtitle') }}</h3>
     <div class="list">

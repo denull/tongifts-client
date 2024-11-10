@@ -7,6 +7,7 @@ import { ref } from 'vue';
 import Icon from './Icon.vue';
 import { loadGiftActions } from '@/api.js';
 import ItemEmpty from './ItemEmpty.vue';
+import { makeScroller } from '@/utils.js';
 const props = defineProps({
   gift: Object,
   giftBounds: Object,
@@ -14,13 +15,16 @@ const props = defineProps({
 const actions = ref([]);
 
 // load actions
+let listScrolled = () => {};
 loadGiftActions(props.gift._id).then(result => {
   actions.value = result;
+  
+  listScrolled = makeScroller(actions, (offs) => loadGiftActions(props.gift._id, offs));
 });
 </script>
 
 <template>
-  <section>
+  <section v-on:scroll="listScrolled">
     <ItemGift :gift="gift" :giftBounds="giftBounds" variant="page" class="gift"/>
     <h1>{{ gift.name[locale] }} <div class="availability">{{ loc('countOf')({ n: gift.total - gift.sold, total: gift.total }) }}</div></h1>
     <h3>{{ loc('giftSubtitle') }}</h3>

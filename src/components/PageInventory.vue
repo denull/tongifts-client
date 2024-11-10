@@ -3,18 +3,23 @@ import { gifts } from '@/globals.js';
 import { loc } from '../locales.js';
 import ItemGift from './ItemGift.vue';
 import ItemEmpty from './ItemEmpty.vue';
-defineProps({
+import { ref } from 'vue';
+import { loadInventory } from '@/api.js';
+const props = defineProps({
   items: {},
 });
+
+const list = ref(props.items);
+const listScrolled = makeScroller(list, (offs) => loadInventory(offs));
 </script>
 
 <template>
-  <section>
+  <section v-on:scroll="listScrolled">
     <h1>{{ loc('giftsTitle') }}</h1>
     <h3>{{ loc('giftsSubtitle') }}</h3>
 
     <div class="list">
-      <ItemGift class="gift" v-for="item in items" :gift="gifts[item.giftId]" variant="inventory" @click="$emit('select', item)" @send="$emit('send', item)"/>
+      <ItemGift class="gift" v-for="item in list" :gift="gifts[item.giftId]" variant="inventory" @click="$emit('select', item)" @send="$emit('send', item)"/>
       <ItemEmpty v-if="!items.length" text="giftsEmpty" @action="$emit('store')"/>
     </div>
   </section>

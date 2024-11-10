@@ -83,6 +83,9 @@ window.pop = popPage;
 Telegram.WebApp.BackButton.onClick(popPage);
 function selectUser(user, position, opts) {
   //console.log('selecting', user, opts);
+  if (stack.value.length) {
+    delete stack.value[stack.value.length - 1].giftBounds;
+  }
   pushPage({ profile: Object.assign(user, { position }), userpicBounds: opts?.userpicBounds });
 }
 function viewGift(gift, opts) {

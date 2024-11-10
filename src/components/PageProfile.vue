@@ -9,6 +9,7 @@ import { loadReceived, loadUser, updateSettings } from '@/api.js';
 import { onMounted, ref } from 'vue';
 import AnimatedBounds from './AnimatedBounds.vue';
 import ItemEmpty from './ItemEmpty.vue';
+import { makeScroller } from '@/utils.js';
 const props = defineProps({
   user: {
   },
@@ -22,10 +23,14 @@ const props = defineProps({
 const user = ref(props.user);
 const position = ref(props.position);
 const receivedGifts = ref(props.received || []);
+let listScrolled = () => {};
 if (!props.received) {
   loadReceived(props.user._id).then(list => {
     receivedGifts.value = list;
+    listScrolled = makeScroller(receivedGifts, (offs) => loadReceived(props.user._id, offs));
   });
+} else {
+  listScrolled = makeScroller(receivedGifts, (offs) => loadReceived(props.user._id, offs));
 }
 if (isNaN(props.position)) {
   loadUser(props.user._id).then(value => {
@@ -53,10 +58,11 @@ onMounted(() => {
   }
   anim.value = true;
 });
+
 </script>
 
 <template>
-  <section :ref="el => elRef = el">
+  <section :ref="el => elRef = el" v-on:scroll="listScrolled">
     <Toggle v-if="self" class="toggle-theme" :states="[{ icon: 'day' }, { icon: 'night' }]" :index="theme == 'day' ? 0 : 1" @change="(idx) => updateTheme(['day', 'night'][idx])"/>
     <Toggle v-if="self" class="toggle-lang" :states="[{ label: 'EN' }, { label: 'RU' }]" :index="locale == 'en' ? 0 : 1" @change="(idx) => updateLocale(['en', 'ru'][idx])" />
     <AnimatedBounds :from="userpicBounds">
