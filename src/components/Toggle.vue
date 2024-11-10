@@ -31,7 +31,7 @@ function onToggle(i) {
   justify-content: center;
   align-items: center;
   padding: 2px;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-darker);
   border-radius: 99px;
   cursor: pointer;
 }

@@ -5,7 +5,7 @@ const props = defineProps({
   invoiceId: Number,
 });
 const emit = defineEmits(['paid']);
-const ws = new WebSocket(import.meta.env.DEV ? 'ws://localhost:3041' : 'ws');
+const ws = new WebSocket('ws');
 ws.onopen = () => {
   ws.send(JSON.stringify({ init: Telegram.WebApp.initData, invoiceId: props.invoiceId }));
 }

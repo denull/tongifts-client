@@ -163,6 +163,7 @@ Telegram.WebApp.MainButton.onClick(() => mainAction && mainAction());
 Telegram.WebApp.SecondaryButton.onClick(() => secondaryAction && secondaryAction());
 Telegram.WebApp.disableVerticalSwipes();
 Telegram.WebApp.expand();
+Telegram.WebApp.ready();
 </script>
 
 <template>

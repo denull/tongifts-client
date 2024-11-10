@@ -34,7 +34,7 @@ const props = defineProps({
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-popup-background);
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   display: flex;
@@ -49,8 +49,8 @@ const props = defineProps({
   right: 12px;
   border: none;
   cursor: pointer;
-  background: #E3E3E8;
-  color: #9E9EA1;
+  background: var(--color-popup-close);
+  color: var(--color-popup-close-fg);
   width: 30px;
   height: 30px;
   border-radius: 100%;

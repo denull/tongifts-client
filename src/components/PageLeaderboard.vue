@@ -71,7 +71,7 @@ async function search() {
   height: 0;
   overflow-y: auto;
   overscroll-behavior-y: var(--overscroll);
-  border-top: 0.33px solid var(--color-separator);
+  border-top: 0.33px solid var(--color-search-separator);
 }
 .search {
   margin: 10px 10px 8px;
@@ -114,6 +114,7 @@ async function search() {
 }
 .empty {
   background: none !important;
+  color: var(--color-label-date);
 }
 .icon-search {
   width: 16px;

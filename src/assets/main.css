@@ -30,8 +30,14 @@ html {
   --color-foreground: var(--color-text);
   --color-background: var(--color-white);
   --color-background-dim: #B2B2B2;
+  --color-popup-background: var(--color-bg-secondary);
+  --color-popup-secondary: var(--color-background);
+  --color-popup-close: #E3E3E8;
+  --color-popup-close-fg: #9E9EA1;
   --color-tabbar: var(--color-bg-tabbar);
+  --color-bg-darker: var(--color-bg-secondary);
   --color-active-toggle: var(--color-white);
+  --color-search-separator: var(--color-separator);
   --tabbar-height: 66px;
   --overscroll: none;
 }
@@ -45,8 +51,21 @@ html.is-night {
   --color-background-dim: #0E0E0F;
   --color-tabbar: rgba(30, 30, 30, 0.75);
   --color-label-tabbar: rgba(255, 255, 255, 0.4);
-  --color-bg-secondary: #000000;
+  --color-bg-secondary: #2C2C2E;
+  --color-popup-background: var(--color-background);
+  --color-popup-secondary: #2C2C2E;
+  --color-popup-close: #2C2C2E;
+  --color-popup-close-fg: var(--color-label-secondary);
+  --color-separator: rgba(255, 255, 255, 0.2);
+  --color-search-separator: rgba(60, 60, 67, 0.2);
+
+  --color-bg-notification: rgba(0, 0, 0, 0.8);
+  --color-bg-darker: #000000;
   --color-active-toggle: #2C2C2E;
+}
+html.is-loading {
+  --color-background: var(--tg-theme-bg-color);
+  --color-foreground: var(--tg-theme-text-color);
 }
 
 body {

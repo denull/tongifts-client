@@ -54,6 +54,7 @@ section > * {
 }
 .empty {
   background: none !important;
+  color: var(--color-label-date);
 }
 .availability {
   display: inline-block;
@@ -95,7 +96,7 @@ h3 {
   width: calc(100% + 32px);
   margin-left: -16px;
   height: 12px;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-darker);
 }
 .header {
   padding: 24px 0px 12px;

@@ -80,7 +80,7 @@ td.label {
   width: 113px;
 }
 td {
-  background-color: var(--color-background);
+  background-color: var(--color-popup-secondary);
   border-right: 0.33px solid var(--color-separator);
   border-bottom: 0.33px solid var(--color-separator);
   padding: 8px 16px;
