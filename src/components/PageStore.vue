@@ -28,6 +28,7 @@ section {
 }
 .icon {
   margin-top: 24px;
+  width: 44px;
   color: var(--color-primary);
 }
 .list {

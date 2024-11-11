@@ -1,7 +1,7 @@
 <script setup>
 import { Vue3Lottie } from 'vue3-lottie';
 import { loc } from '../locales.js';
-import { gifts, locale } from '@/globals.js';
+import { anim, gifts, locale } from '@/globals.js';
 import { onMounted, ref } from 'vue';
 const props = defineProps({
   gift: Object,
@@ -10,10 +10,10 @@ const props = defineProps({
 defineEmits(['action']);
 const notificationEl = ref(null);
 onMounted(() => {
-  console.log(props.gift);
   requestAnimationFrame(() => {
     notificationEl.value.classList.add('is-visible');
   });
+  Telegram.WebApp.HapticFeedback.notificationOccurred('success');
 });
 </script>
 
@@ -21,8 +21,8 @@ onMounted(() => {
   <section>
     <div class="content">
       <div class="image">
-        <Vue3Lottie :animation-data="JSON.parse(gifts[gift.giftId].anim)" class="gift" :width="100" :height="100" :loop="false"/>
-        <Vue3Lottie :animation-link="`assets/anim/effect-gift-purchased.json`" class="effect" :width="320" :height="320" :loop="false"/>
+        <Vue3Lottie :animationData="JSON.parse(gifts[gift.giftId].anim)" class="gift" :width="100" :height="100" :loop="false"/>
+        <Vue3Lottie :animationData="anim('effect-gift-purchased').value" class="effect" :width="320" :height="320" :loop="false"/>
       </div>
       <h1>{{ loc(variant + 'Title') }}</h1>
       <h3>{{ loc(variant + 'Subtitle')(gifts[gift.giftId].name[locale], gift) }}</h3>

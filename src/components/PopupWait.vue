@@ -11,7 +11,6 @@ ws.onopen = () => {
 }
 ws.onmessage = (ev) => {
   const data = JSON.parse(ev.data);
-  console.log(data);
   if (data.status == 'paid') {
     emit('paid', data.action);
   }

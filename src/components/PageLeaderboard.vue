@@ -55,7 +55,7 @@ async function search() {
       </div>
     </div>
     <div class="list">
-      <ItemUser v-for="user in list" :user="user" :position="filtered ? NaN : positions[user._id]" @select="opts => $emit('select', user, filtered ? NaN : positions[user._id], opts)"/>
+      <ItemUser v-for="user in list" :user="user" :self="user._id == me?._id" :position="filtered ? NaN : positions[user._id]" @select="opts => $emit('select', user, filtered ? NaN : positions[user._id], opts)"/>
       <ItemEmpty v-if="!list.length" :image="false" :action="false" text="noUsersFound" class="empty"/>
     </div>
     <div class="you">

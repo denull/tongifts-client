@@ -2,6 +2,7 @@
 import { Vue3Lottie } from 'vue3-lottie';
 import { loc } from '../locales.js';
 import Icon from './Icon.vue';
+import { anim } from '@/globals.js';
 defineProps({
   name: {
     type: String,
@@ -17,7 +18,7 @@ defineProps({
 <template>
   <div class="button" :class="{ 'is-active': active }">
     <div class="image">
-      <Vue3Lottie v-if="active" :animation-link="`assets/anim/tab-${name}.json`" :width="26" :height="26" class="anim" :loop="false"/>
+      <Vue3Lottie v-if="active" :animationData="anim('tab-' + name).value" :width="26" :height="26" class="anim" :loop="false"/>
       <Icon v-else :name="name" class="icon"/>
     </div>
     <div class="label">{{ loc(name) }}</div>

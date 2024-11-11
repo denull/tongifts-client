@@ -5,6 +5,7 @@ import ItemGift from './ItemGift.vue';
 import ItemEmpty from './ItemEmpty.vue';
 import { ref } from 'vue';
 import { loadInventory } from '@/api.js';
+import { makeScroller } from '@/utils.js';
 const props = defineProps({
   items: {},
 });
